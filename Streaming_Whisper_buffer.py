@@ -14,12 +14,12 @@ from faster_whisper import WhisperModel
 SAMPLE_RATE = 16000                                 # Whisper prefers 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.8                               # seconds append to buffer each callback
-BUFFER_DURATION = 30                                # seconds in rolling buffer (Whisper context)
+BUFFER_DURATION = 20                                # seconds in rolling buffer (Whisper context)
 TRANSCRIBE_INTERVAL = 4.0                           # seconds between transcription runs
-MODEL_SIZE = "medium"                               
+MODEL_SIZE = "small"                               
 OUTPUT_PATH = os.path.join("data","output.txt")
 LANG = "en"                                          # language for transcription
-BEAM_SIZE = 5                                         # beam size for transcription (higher= potentially more accurate, slower)
+BEAM_SIZE = 3                                      # beam size for transcription (higher= potentially more accurate, slower)
 BLOCK_SIZE = int(SAMPLE_RATE * CHUNK_DURATION)
 SAMPLE_AUDIO_PATH = r"data\10th-august-225_EOPwctfY.mp3"
 # -------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
 # load Whisper model (fast-whisper)
 print(f"Loading model '{MODEL_SIZE}' (this may take a while)...")
-model = WhisperModel(MODEL_SIZE, device="cpu", compute_type="int8") # change device/compute_type if you have GPU
+model = WhisperModel(MODEL_SIZE, device="cpu", compute_type="float32") # change device/compute_type if you have GPU
 print("Model loaded.")
 
 # Rolling buffer (deque of floats)
@@ -76,7 +76,7 @@ def transcribe_current_buffer():
   Returns the full transcription txt (String) or None if not enough audio.
   """
   print("transcribe_current_buffer running ..")
-  if len(audio_buffer) < SAMPLE_RATE * 3: # waits until at least 3s captured
+  if len(audio_buffer) < SAMPLE_RATE * 5: # waits until at least 3s captured
     return None
   
   # Convert deque to Numpy array
@@ -89,7 +89,6 @@ def transcribe_current_buffer():
     audio_np, 
     beam_size=BEAM_SIZE, 
     language=LANG,
-    vad_filter=True # helps ignore long silences if available
   )
   print("transcribed")
   # print("transcribe_current_buffer ran.")
@@ -172,15 +171,17 @@ def start_streaming():
     
       print("Listening (ress Ctrl+c to stop)...")
 
+      samples = np.load(r"data\10th_aug_audio_data.npy", mmap_mode="r")
+      start = 0
       
-      samples = np.load(r"data\10th_aug_audio_data.npy")
-      for start in range(0, len(samples), BLOCK_SIZE):
-        chunk = samples[start:start + BLOCK_SIZE]
-
-        if len(chunk) < BLOCK_SIZE:
-          chunk = np.pad(chunk, (0,BLOCK_SIZE - len(chunk)), mode='constant')
+      total_samples = len(samples)
+      while not stop_event.is_set() and  start < total_samples:
+        time_started = time.time()
+        end = min(BLOCK_SIZE+start, total_samples)
+        chunk = samples[start:end]
         sd_callback(chunk, len(chunk), None, None)
-        time.sleep(CHUNK_DURATION)
+        start += BLOCK_SIZE
+        time.sleep(CHUNK_DURATION - (time.time()-time_started))
 
       while not stop_event.is_set():
         time.sleep(0.5)
