@@ -14,12 +14,12 @@ from faster_whisper import WhisperModel
 SAMPLE_RATE = 16000                                 # Whisper prefers 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.8                               # seconds append to buffer each callback
-BUFFER_DURATION = 20                                # seconds in rolling buffer (Whisper context)
+BUFFER_DURATION = 30                              # seconds in rolling buffer (Whisper context)
 TRANSCRIBE_INTERVAL = 4.0                           # seconds between transcription runs
-MODEL_SIZE = "small"                               
+MODEL_SIZE = "tiny"                               
 OUTPUT_PATH = os.path.join("data","output.txt")
 LANG = "en"                                          # language for transcription
-BEAM_SIZE = 3                                      # beam size for transcription (higher= potentially more accurate, slower)
+BEAM_SIZE = 1                                      # beam size for transcription (higher= potentially more accurate, slower)
 BLOCK_SIZE = int(SAMPLE_RATE * CHUNK_DURATION)
 SAMPLE_AUDIO_PATH = r"data\10th-august-225_EOPwctfY.mp3"
 # -------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
 # load Whisper model (fast-whisper)
 print(f"Loading model '{MODEL_SIZE}' (this may take a while)...")
-model = WhisperModel(MODEL_SIZE, device="cpu", compute_type="float32") # change device/compute_type if you have GPU
+model = WhisperModel(MODEL_SIZE, device="cpu", compute_type="int8") # change device/compute_type if you have GPU
 print("Model loaded.")
 
 # Rolling buffer (deque of floats)
