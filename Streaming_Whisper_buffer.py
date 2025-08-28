@@ -89,6 +89,7 @@ def transcribe_current_buffer():
     audio_np, 
     beam_size=BEAM_SIZE, 
     language=LANG,
+    vad_filter=True
   )
   print("transcribed")
   # print("transcribe_current_buffer ran.")
