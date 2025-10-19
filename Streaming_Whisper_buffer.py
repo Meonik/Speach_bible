@@ -5,21 +5,21 @@ Streaming_whisper_buffer.py
 - Every TRANSCRIBE_INTERVAL seconds send latest 30s to whisper
 - writes transcription to data/output.txt and optionally calls a callback
 """
-import collections, time, threading, os
+import collections, time, threading, os, json
 import numpy as np
 import sounddevice as sd
 from faster_whisper import WhisperModel
-
+from num2words import num2words
 # --------------------------------CONFIG ------------------------------------
 SAMPLE_RATE = 16000                                 # Whisper prefers 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.8                               # seconds append to buffer each callback
-BUFFER_DURATION = 30                              # seconds in rolling buffer (Whisper context)
+BUFFER_DURATION = 20                              # seconds in rolling buffer (Whisper context)
 TRANSCRIBE_INTERVAL = 4.0                           # seconds between transcription runs
 MODEL_SIZE = "tiny"                               
 OUTPUT_PATH = os.path.join("data","output.txt")
 LANG = "en"                                          # language for transcription
-BEAM_SIZE = 1                                      # beam size for transcription (higher= potentially more accurate, slower)
+BEAM_SIZE = 2                                      # beam size for transcription (higher= potentially more accurate, slower)
 BLOCK_SIZE = int(SAMPLE_RATE * CHUNK_DURATION)
 SAMPLE_AUDIO_PATH = r"data\10th-august-225_EOPwctfY.mp3"
 # -------------------------------------------------------------------------------------
@@ -35,6 +35,18 @@ print("Model loaded.")
 # Rolling buffer (deque of floats)
 max_samples = int(BUFFER_DURATION*SAMPLE_RATE)
 audio_buffer = collections.deque(maxlen=max_samples)
+
+
+
+with open(r"data/kjv.json", "r") as f:
+  bible = json.load(f)["verses"]
+  names = list({name["book_name"] for name in bible})
+
+focus_words = names + ["chapter","verse", "in the book of", "scripture"] + [num2words(i) for i in range(0,11)] + [num2words(i) for i in range(0,110,10)]
+num_words = [num2words(i) for i in range(0,11)] + [num2words(i) for i in range(0,110,10)] + [str(i) for i in range(1,180)] 
+
+prompt_words = f"""{" ".join(names)}"""
+
 
 # Thread control
 stop_event = threading.Event()
@@ -89,7 +101,8 @@ def transcribe_current_buffer():
     audio_np, 
     beam_size=BEAM_SIZE, 
     language=LANG,
-    vad_filter=True
+    vad_filter=True,
+    initial_prompt=prompt_words
   )
   print("transcribed")
   # print("transcribe_current_buffer ran.")
