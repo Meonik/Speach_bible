@@ -10,18 +10,19 @@ import numpy as np
 import sounddevice as sd
 from faster_whisper import WhisperModel
 from num2words import num2words
+import soundfile as sf
 # --------------------------------CONFIG ------------------------------------
 SAMPLE_RATE = 16000                                 # Whisper prefers 16000
 CHANNELS = 1
 CHUNK_DURATION = 0.8                               # seconds append to buffer each callback
-BUFFER_DURATION = 20                              # seconds in rolling buffer (Whisper context)
+BUFFER_DURATION = 10                              # seconds in rolling buffer (Whisper context)
 TRANSCRIBE_INTERVAL = 4.0                           # seconds between transcription runs
-MODEL_SIZE = "tiny"                               
-OUTPUT_PATH = os.path.join("data","output.txt")
+MODEL_SIZE = "base"                               
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__),"output.txt")
 LANG = "en"                                          # language for transcription
 BEAM_SIZE = 2                                      # beam size for transcription (higher= potentially more accurate, slower)
 BLOCK_SIZE = int(SAMPLE_RATE * CHUNK_DURATION)
-SAMPLE_AUDIO_PATH = r"data\10th-august-225_EOPwctfY.mp3"
+SAMPLE_AUDIO_PATH = r"data\training_data\audio\Abraham_in_Genesis_twenty_verse_seven.wav"
 # -------------------------------------------------------------------------------------
 
 #Make sure data folder exists
@@ -42,10 +43,11 @@ with open(r"data/kjv.json", "r") as f:
   bible = json.load(f)["verses"]
   names = list({name["book_name"] for name in bible})
 
-focus_words = names + ["chapter","verse", "in the book of", "scripture"] + [num2words(i) for i in range(0,11)] + [num2words(i) for i in range(0,110,10)]
+focus_words = names + ["chapter", "verse", "in the book of", "scripture", "first", "second", "third"] 
+# + [num2words(i) for i in range(0,11)] + [num2words(i) for i in range(0,110,10)]
 num_words = [num2words(i) for i in range(0,11)] + [num2words(i) for i in range(0,110,10)] + [str(i) for i in range(1,180)] 
 
-prompt_words = f"""{" ".join(names)}"""
+prompt_words = f"""{" ".join(focus_words)}"""
 
 
 # Thread control
@@ -88,7 +90,7 @@ def transcribe_current_buffer():
   Returns the full transcription txt (String) or None if not enough audio.
   """
   print("transcribe_current_buffer running ..")
-  if len(audio_buffer) < SAMPLE_RATE * 5: # waits until at least 3s captured
+  if len(audio_buffer) < SAMPLE_RATE * 2: # waits until at least 3s captured
     return None
   
   # Convert deque to Numpy array
@@ -116,7 +118,7 @@ def write_transcript_files(text: str):
   # Append or overwrite? We will append a timestamped entry for review.
   ts = time.strftime("%Y-%m-%d %H:%M:%S")
   entry = f"[{ts}], {text}\n"
-  with open(OUTPUT_PATH, "a", encoding="utf-8") as f:
+  with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
     f.write(entry)
     f.flush()
     print("write_transcript_files ran.")
@@ -183,19 +185,27 @@ def start_streaming():
     #                     blocksize=BLOCK_SIZE,
     #                     callback=sd_callback):
     
-      print("Listening (ress Ctrl+c to stop)...")
-
-      samples = np.load(r"data\10th_aug_audio_data.npy", mmap_mode="r")
-      start = 0
+      print("Listening (press Ctrl+c to stop)...")
+    
+      # Streaming from Wav file
+      with sf.SoundFile(SAMPLE_AUDIO_PATH) as f:
+        for block in f.blocks(blocksize=BLOCK_SIZE, dtype="float32"):
+            time_started = time.time()
+            sd_callback(block, len(block), None, None)
+            time.sleep(CHUNK_DURATION - (time.time()-time_started))
+          
+      # streaming from numpy
+      # samples = np.load(r"data\10th_aug_audio_data.npy", mmap_mode="r")
+      # start = 0
       
-      total_samples = len(samples)
-      while not stop_event.is_set() and  start < total_samples:
-        time_started = time.time()
-        end = min(BLOCK_SIZE+start, total_samples)
-        chunk = samples[start:end]
-        sd_callback(chunk, len(chunk), None, None)
-        start += BLOCK_SIZE
-        time.sleep(CHUNK_DURATION - (time.time()-time_started))
+      # total_samples = len(samples)
+      # while not stop_event.is_set() and  start < total_samples:
+      #   time_started = time.time()
+      #   end = min(BLOCK_SIZE+start, total_samples)
+      #   chunk = samples[start:end]
+      #   sd_callback(chunk, len(chunk), None, None)
+      #   start += BLOCK_SIZE
+      #   time.sleep(CHUNK_DURATION - (time.time()-time_started))
 
       while not stop_event.is_set():
         time.sleep(0.5)
@@ -208,11 +218,11 @@ def start_streaming():
 
 
 # If run directly, start streaming
-# if __name__ == "__main__":
+if __name__ == "__main__":
   # Example: if you want to call main.detect_scripture directly, import it here and set no_transcript:
   # from main import detect_scripture
   # on_transcript = detect_scripture
+  start_streaming()
 
-start_streaming()
 
   

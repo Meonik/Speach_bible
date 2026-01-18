@@ -8,7 +8,8 @@ Daemon threads:
 
 import re, json, time, threading, os
 from flask import Flask, Response, send_file
-
+if __name__  == "__main__":
+  from Streaming_Whisper_buffer import start_streaming
 
 app = Flask(__name__)
 
@@ -29,6 +30,16 @@ r""" we need to compile/parse it once cause it faster cause the computer don't h
  + -> one or more of any thing it in front of.
  \d -> number (0-9)
 """
+
+def check_num(x):
+  da = x.split()
+  if da[0].isnumeric():
+    return x[2:]
+  return x
+
+just_book_names = list(map(check_num ,book_names))
+pattern2 = re.compile(rf"(first|second|third)?\s*({'|'.join(just_book_names)})\s+(\d{{1,3}})[A-Za-z\s]*\s+(\d{{1,3}})", re.IGNORECASE)
+
 def search_bible(book, chapter, verse):
   print("searched_bible")
   found = [v for v in bible if book == v["book_name"] and chapter == v["chapter"] and verse == v["verse"]]
@@ -59,10 +70,31 @@ def verse_stream():
 def detect_scripture(transcribed_text):
   global current_verse
   match = pattern.search(transcribed_text)
+  match2 = pattern2.search(transcribed_text)
   print("detect_scripture ran")
   if match:
     book, chapter, verse = match.groups()
     book = book.title()   # converts to title case
+    chapter, verse = int(chapter), int(verse)
+    verse_text = search_bible(book, chapter, verse)
+    current_verse = f"{book} {chapter}:{verse} - {verse_text}"
+    print(current_verse)
+  elif match2:
+    position, book, chapter, verse = match2.groups()
+    print(position, book, chapter, verse)
+
+    if not position:
+      p = ''
+    else:
+      position = position.lower()
+      if position == "first":
+        p = 1
+      elif position == "second":
+        p = 2
+      elif position == "third":
+        p = 3
+        
+    book = (f"{p} " + book).strip().title()   # converts to title case
     chapter, verse = int(chapter), int(verse)
     verse_text = search_bible(book, chapter, verse)
     current_verse = f"{book} {chapter}:{verse} - {verse_text}"
@@ -87,9 +119,9 @@ def watch_transcript():
 if __name__ == "__main__": # prevent the server from auto_starting if this file is imported as a module. 
   t = threading.Thread(target=watch_transcript, daemon=True)
   t.start()  # calls the watch_transcript in another daemon thread
+  t2 = threading.Thread(target=start_streaming, daemon=True)
+  t2.start()
   app.run(host="127.0.0.1", port=5000)
-
-
 
 # t.join()
 # print("thread stopped")
