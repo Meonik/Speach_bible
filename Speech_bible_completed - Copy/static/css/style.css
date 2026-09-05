@@ -1,0 +1,567 @@
+/* =====================================================
+   GENERAL
+   ===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+    padding: 0;
+
+    background: #0b1118;
+
+    color: #e8edf2;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* =====================================================
+   MAIN APPLICATION
+   ===================================================== */
+
+.app {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding: 28px;
+
+    position: relative;
+
+    background: #0b1118;
+}
+
+
+/* Subtle engineering grid */
+
+.app::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background-image:
+
+        linear-gradient(
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 40px 40px;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.header {
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #26323d;
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.brand-icon {
+
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid #2d8fbf;
+
+    border-radius: 8px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #46b8ec;
+
+    font-size: 20px;
+}
+
+
+.brand-text h1 {
+
+    margin: 0;
+
+    font-size: 24px;
+
+    letter-spacing: 2px;
+
+    font-weight: 600;
+}
+
+
+.brand-text span {
+
+    color: #71808d;
+
+    font-size: 11px;
+
+    letter-spacing: 1.5px;
+}
+
+
+/* =====================================================
+   SYSTEM STATUS
+   ===================================================== */
+
+.system-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    font-size: 13px;
+
+    color: #8b99a5;
+}
+
+
+.status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.status-dot {
+
+    width: 9px;
+
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #68747d;
+}
+
+
+.status-dot.active {
+
+    background: #42d392;
+
+    box-shadow:
+        0 0 10px rgba(66, 211, 146, 0.5);
+}
+
+
+.cpu {
+
+    padding-left: 20px;
+
+    border-left: 1px solid #26323d;
+}
+
+
+/* =====================================================
+   DASHBOARD
+   ===================================================== */
+
+.dashboard {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+
+    gap: 18px;
+}
+
+
+.left-column,
+.right-column {
+
+    min-width: 0;
+}
+
+
+/* =====================================================
+   PANELS
+   ===================================================== */
+
+.panel {
+
+    background: #111a23;
+
+    border: 1px solid #26323d;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+
+.panel-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 15px 18px;
+
+    border-bottom: 1px solid #26323d;
+
+    color: #81909d;
+
+    font-size: 11px;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+}
+
+
+.panel-body {
+
+    padding: 20px;
+}
+
+
+/* =====================================================
+   BIBLE PASSAGE
+   ===================================================== */
+
+.passage-panel {
+
+    min-height: 330px;
+}
+
+
+.reference {
+
+    color: #48b9ed;
+
+    font-size: 29px;
+
+    font-weight: 600;
+
+    margin-bottom: 18px;
+}
+
+
+.verse-text {
+
+    color: #e6ebef;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 24px;
+
+    line-height: 1.7;
+}
+
+
+.response-time {
+
+    margin-top: 25px;
+
+    color: #687783;
+
+    font-size: 12px;
+}
+
+
+.response-time span {
+
+    color: #9ba9b4;
+}
+
+
+/* =====================================================
+   TRANSCRIPTION
+   ===================================================== */
+
+.transcription-panel {
+
+    min-height: 330px;
+
+    margin-top: 18px;
+}
+
+
+#transcription {
+
+    height: 270px;
+
+    overflow-y: auto;
+
+    color: #c7d0d7;
+
+    font-family: Consolas, monospace;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+}
+
+
+.transcription-placeholder {
+
+    color: #52616d;
+}
+
+
+/* =====================================================
+   VOLUME METER
+   ===================================================== */
+
+.volume-panel {
+
+    margin-bottom: 18px;
+}
+
+
+.volume-container {
+
+    padding: 25px 20px;
+}
+
+
+.volume-label {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    color: #81909d;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.volume-bar {
+
+    height: 18px;
+
+    width: 100%;
+
+    background: #091018;
+
+    border: 1px solid #26323d;
+
+    border-radius: 4px;
+
+    overflow: hidden;
+}
+
+
+.volume-level {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: #36a9dc;
+
+    transition: width 0.08s linear;
+}
+
+
+.volume-message {
+
+    margin-top: 12px;
+
+    color: #687783;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   SETTINGS
+   ===================================================== */
+
+.settings {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 14px;
+}
+
+
+.setting {
+
+    background: #0c141c;
+
+    border: 1px solid #26323d;
+
+    border-radius: 6px;
+
+    padding: 12px;
+}
+
+
+.setting-label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #657580;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.setting-value {
+
+    color: #dce4e9;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   CONTROLS
+   ===================================================== */
+
+.controls {
+
+    margin-top: 18px;
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+button {
+
+    border: 1px solid #30404c;
+
+    border-radius: 6px;
+
+    padding: 11px 18px;
+
+    background: #16222d;
+
+    color: #dce4e9;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    letter-spacing: 0.5px;
+}
+
+
+button:hover {
+
+    background: #1c2d3a;
+}
+
+
+button.start {
+
+    border-color: #267b55;
+
+    color: #55d99b;
+}
+
+
+button.stop {
+
+    border-color: #783e43;
+
+    color: #e4777d;
+}
+
+
+button:disabled {
+
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+.settings .setting-select {
+    color: #778291;
+    background: #080e28;
+    border: 1px solid #778291;
+    border-radius: 6px;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+    .dashboard {
+
+        grid-template-columns: 1fr;
+    }
+
+}

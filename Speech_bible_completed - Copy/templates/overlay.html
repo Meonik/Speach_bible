@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Speech Bible</title>
+
+    <!-- Main stylesheet -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ==========================================
+             HEADER
+             ========================================== -->
+
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    SB
+                </div>
+
+                <div class="brand-text">
+
+                    <h1>SPEECH BIBLE</h1>
+
+                    <span>
+                        OFFLINE SCRIPTURE DETECTION SYSTEM
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="system-status">
+
+                <div class="status">
+
+                    <div
+                        id="statusDot"
+                        class="status-dot"
+                    ></div>
+
+                    <span id="statusText">
+                        STOPPED
+                    </span>
+
+                </div>
+
+                <div class="cpu">
+
+                    CPU
+                    <span id="cpuUsage">--%</span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==========================================
+             MAIN DASHBOARD
+             ========================================== -->
+
+        <main class="dashboard">
+
+            <!-- ======================================
+                 LEFT COLUMN
+                 ====================================== -->
+
+            <section class="left-column">
+
+                <!-- ==================================
+                     BIBLE PASSAGE
+                     ================================== -->
+
+                <div class="panel passage-panel">
+
+                    <div class="panel-header">
+
+                        <span>
+                            Bible Passage Detected
+                        </span>
+
+                        <span id="detectionState">
+                            WAITING
+                        </span>
+
+                    </div>
+
+                    <div class="panel-body">
+
+                        <div
+                            id="reference"
+                            class="reference"
+                        >
+                            Waiting...
+                        </div>
+
+                        <div
+                            id="verseText"
+                            class="verse-text"
+                        >
+                            No scripture detected yet.
+                        </div>
+
+                        <div class="response-time">
+
+                            Speech-to-text response time:
+
+                            <span id="responseTime">
+                                --
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================
+                     LIVE TRANSCRIPTION
+                     ================================== -->
+
+                <div class="panel transcription-panel">
+
+                    <div class="panel-header">
+
+                        <span>
+                            Live Transcription
+                        </span>
+
+                        <span id="transcriptionState">
+                            NO AUDIO
+                        </span>
+
+                    </div>
+
+                    <div class="panel-body">
+
+                        <div id="transcription">
+
+                            <span class="transcription-placeholder">
+                                Waiting for microphone input...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 RIGHT COLUMN
+                 ====================================== -->
+
+            <section class="right-column">
+
+                <!-- ==================================
+                     VOICE INPUT
+                     ================================== -->
+
+                <div class="panel volume-panel">
+
+                    <div class="panel-header">
+
+                        <span>
+                            Voice Input
+                        </span>
+
+                        <span id="volumePercentage">
+                            0%
+                        </span>
+
+                    </div>
+
+                    <div class="volume-container">
+
+                        <div class="volume-label">
+
+                            <span>
+                                Microphone Level
+                            </span>
+
+                            <span>
+                                INPUT
+                            </span>
+
+                        </div>
+
+                        <div class="volume-bar">
+
+                            <div
+                                id="volumeLevel"
+                                class="volume-level"
+                            ></div>
+
+                        </div>
+
+                        <div class="volume-message" id="volumeMessage">
+
+                            Listening for voice input...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================
+                     SETTINGS
+                     ================================== -->
+
+                <div class="panel settings-panel">
+
+                    <div class="panel-header">
+
+                        <span>
+                            Settings
+                        </span>
+
+                        <span id="settingsState"></span>
+
+                    </div>
+
+                    <div class="panel-body">
+
+                        <div class="settings">
+
+                            <div class="setting">
+
+                                <label
+                                    class="setting-label"
+                                    for="sampleRateSelect"
+                                >
+                                    Sample Rate
+                                </label>
+
+                                <select
+                                    id="sampleRateSelect"
+                                    class="setting-value setting-select"
+                                >
+                                    <option value="8000">8 kHz</option>
+                                    <option value="16000" selected>16 kHz</option>
+                                    <option value="32000">32 kHz</option>
+                                    <option value="48000">48 kHz</option>
+                                </select>
+
+                            </div>
+
+                            <div class="setting">
+
+                                <label
+                                    class="setting-label"
+                                    for="bufferDurationSelect"
+                                >
+                                    Buffer Duration
+                                </label>
+
+                                <select
+                                    id="bufferDurationSelect"
+                                    class="setting-value setting-select"
+                                >
+                                    <option value="5">5 sec</option>
+                                    <option value="10" selected>10 sec</option>
+                                    <option value="20">20 sec</option>
+                                    <option value="30">30 sec</option>
+                                </select>
+
+                            </div>
+
+                            <div class="setting">
+
+                                <label
+                                    class="setting-label"
+                                    for="processingIntervalSelect"
+                                >
+                                    Processing Interval
+                                </label>
+
+                                <select
+                                    id="processingIntervalSelect"
+                                    class="setting-value setting-select"
+                                >
+                                    <option value="2">2 sec</option>
+                                    <option value="4" selected>4 sec</option>
+                                    <option value="8">8 sec</option>
+                                    <option value="15">15 sec</option>
+                                </select>
+
+                            </div>
+
+                            <div class="setting">
+
+                                <label
+                                    class="setting-label"
+                                    for="whisperModelSelect"
+                                >
+                                    Whisper Model
+                                </label>
+
+                                <select
+                                    id="whisperModelSelect"
+                                    class="setting-value setting-select"
+                                >
+                                    <option value="tiny">Tiny</option>
+                                    <option value="base" selected>Base</option>
+                                    <option value="small">Small</option>
+                                    <option value="medium">Medium</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="settings-hint" id="settingsHint">
+                            Settings can only be changed while stopped.
+                        </div>
+
+                        <!-- ==================================
+                             CONTROLS
+                             ================================== -->
+
+                        <div class="controls">
+
+                            <button
+                                id="startButton"
+                                class="start"
+                            >
+                                START
+                            </button>
+
+                            <button
+                                id="stopButton"
+                                class="stop"
+                                disabled
+                            >
+                                STOP
+                            </button>
+
+                            <button
+                                id="defaultsButton"
+                            >
+                                RESTORE DEFAULTS
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- Main JavaScript -->
+    <script
+        src="{{ url_for('static', filename='js/app.js') }}"
+    ></script>
+
+</body>
+
+</html>
